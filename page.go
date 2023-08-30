@@ -64,15 +64,22 @@ func (r *Reader) GetPlainText() (reader io.Reader, err error) {
 	pages := r.NumPage()
 	var buf bytes.Buffer
 	fonts := make(map[string]*Font)
+	fmt.Println("pdf top", pages)
 	for i := 1; i <= pages; i++ {
+		fmt.Println("top loop", i)
 		p := r.Page(i)
+		fmt.Println("loop B")
 		for _, name := range p.Fonts() { // cache fonts so we don't continually parse charmap
+			fmt.Println("loop C")
 			if _, ok := fonts[name]; !ok {
+				fmt.Println("loop D", name)
 				f := p.Font(name)
 				fonts[name] = &f
 			}
 		}
+		fmt.Println("loop E")
 		text, err := p.GetPlainText(fonts)
+		fmt.Println("loop F")
 		if err != nil {
 			return &bytes.Buffer{}, err
 		}
