@@ -132,15 +132,19 @@ func (b *buffer) unreadToken(t token) {
 }
 
 func (b *buffer) readToken() token {
+	fmt.Println("readToken A")
 	if n := len(b.unread); n > 0 {
+		fmt.Println("readToken B")
 		t := b.unread[n-1]
 		b.unread = b.unread[:n-1]
 		return t
 	}
-
+	fmt.Println("readToken C")
 	// Find first non-space, non-comment byte.
 	c := b.readByte()
+	
 	for {
+		fmt.Println("readToken D", string(c), b.eof)
 		if isSpace(c) {
 			if b.eof {
 				return io.EOF
@@ -155,6 +159,7 @@ func (b *buffer) readToken() token {
 		}
 	}
 
+	fmt.Println("readToken E", string(c))
 	switch c {
 	case '<':
 		if b.readByte() == '<' {

@@ -63,12 +63,13 @@ func Interpret(strm Value, do func(stk *Stack, op string)) {
 	var stk Stack
 	var dicts []dict
 	fmt.Println("interpret D")
-	
+
 Reading:
 	
 	for {
 		fmt.Println("interpret E")
 		tok := b.readToken()
+		fmt.Println("interpret E1")
 		if tok == io.EOF {
 			break
 		}
