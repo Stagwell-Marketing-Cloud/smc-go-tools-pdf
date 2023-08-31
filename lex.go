@@ -144,7 +144,7 @@ func (b *buffer) readToken() token {
 	c := b.readByte()
 	
 	for {
-		fmt.Println("readToken D", string(c), b.eof)
+		fmt.Println("readToken D", len(b.buf), "=", b.pos, ":", isSpace(c), ":", b.eof, rune(c))
 		if isSpace(c) {
 			if b.eof {
 				return io.EOF
