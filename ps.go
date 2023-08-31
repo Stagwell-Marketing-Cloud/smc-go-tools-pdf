@@ -52,26 +52,35 @@ func newDict() Value {
 // There is no support for executable blocks, among other limitations.
 //
 func Interpret(strm Value, do func(stk *Stack, op string)) {
+	fmt.Println("interpret A")
 	rd := strm.Reader()
+	fmt.Println("interpret B")
 	b := newBuffer(rd, 0)
+	fmt.Println("interpret C")
 	b.allowEOF = true
 	b.allowObjptr = false
 	b.allowStream = false
 	var stk Stack
 	var dicts []dict
-
+	fmt.Println("interpret D")
+	
 Reading:
+	
 	for {
+		fmt.Println("interpret E")
 		tok := b.readToken()
 		if tok == io.EOF {
 			break
 		}
 		if kw, ok := tok.(keyword); ok {
+			fmt.Println("interpret F")
 			switch kw {
 			case "null", "[", "]", "<<", ">>":
 				break
 			default:
+				fmt.Println("interpret H")
 				for i := len(dicts) - 1; i >= 0; i-- {
+					fmt.Println("interpret H", i)
 					if v, ok := dicts[i][name(kw)]; ok {
 						stk.Push(Value{nil, objptr{}, v})
 						continue Reading
@@ -80,16 +89,19 @@ Reading:
 				do(&stk, string(kw))
 				continue
 			case "dict":
+				fmt.Println("interpret G")
 				stk.Pop()
 				stk.Push(Value{nil, objptr{}, make(dict)})
 				continue
 			case "currentdict":
+				fmt.Println("interpret I")
 				if len(dicts) == 0 {
 					panic("no current dictionary")
 				}
 				stk.Push(Value{nil, objptr{}, dicts[len(dicts)-1]})
 				continue
 			case "begin":
+				fmt.Println("interpret J")
 				d := stk.Pop()
 				if d.Kind() != Dict {
 					panic("cannot begin non-dict")
@@ -97,12 +109,14 @@ Reading:
 				dicts = append(dicts, d.data.(dict))
 				continue
 			case "end":
+				fmt.Println("interpret K")
 				if len(dicts) <= 0 {
 					panic("mismatched begin/end")
 				}
 				dicts = dicts[:len(dicts)-1]
 				continue
 			case "def":
+				fmt.Println("interpret L")
 				if len(dicts) <= 0 {
 					panic("def without open dict")
 				}
@@ -114,15 +128,20 @@ Reading:
 				dicts[len(dicts)-1][key] = val.data
 				continue
 			case "pop":
+				fmt.Println("interpret M")
 				stk.Pop()
 				continue
 			}
 		}
+		fmt.Println("interpret N")
 		b.unreadToken(tok)
+		fmt.Println("interpret O")
 		obj, err := b.readObject()
+		fmt.Println("interpret P")
 		if err != nil {
 			return
 		}
+		fmt.Println("interpret Q")
 		stk.Push(Value{nil, objptr{}, obj})
 	}
 }
