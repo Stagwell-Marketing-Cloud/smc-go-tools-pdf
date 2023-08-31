@@ -64,22 +64,17 @@ func (r *Reader) GetPlainText() (reader io.Reader, err error) {
 	pages := r.NumPage()
 	var buf bytes.Buffer
 	fonts := make(map[string]*Font)
-	fmt.Println("pdf top", pages)
+	
 	for i := 1; i <= pages; i++ {
-		fmt.Println("top loop", i)
 		p := r.Page(i)
-		fmt.Println("loop B")
 		for _, name := range p.Fonts() { // cache fonts so we don't continually parse charmap
-			fmt.Println("loop C")
 			if _, ok := fonts[name]; !ok {
-				fmt.Println("loop D", name)
 				f := p.Font(name)
 				fonts[name] = &f
 			}
 		}
-		fmt.Println("loop E")
+		
 		text, err := p.GetPlainText(fonts)
-		fmt.Println("loop F")
 		if err != nil {
 			return &bytes.Buffer{}, err
 		}
@@ -470,11 +465,8 @@ type gstate struct {
 // GetPlainText returns the page's all text without format.
 // fonts can be passed in (to improve parsing performance) or left nil
 func (p Page) GetPlainText(fonts map[string]*Font) (result string, err error) {
-	fmt.Println("Page A")
 	defer func() {
-		fmt.Println("Page B")
 		if r := recover(); r != nil {
-			fmt.Println("Page C")
 			result = ""
 			err = errors.New(fmt.Sprint(r))
 		}
@@ -482,7 +474,6 @@ func (p Page) GetPlainText(fonts map[string]*Font) (result string, err error) {
 
 	strm := p.V.Key("Contents")
 	var enc TextEncoding = &nopEncoder{}
-	fmt.Println("Page D")
 	if fonts == nil {
 		fonts = make(map[string]*Font)
 		for _, font := range p.Fonts() {
@@ -490,28 +481,24 @@ func (p Page) GetPlainText(fonts map[string]*Font) (result string, err error) {
 			fonts[font] = &f
 		}
 	}
-	fmt.Println("Page E")
+	
 	var textBuilder bytes.Buffer
 	showText := func(s string) {
 		for _, ch := range enc.Decode(s) {
-			fmt.Println("Page E1")
 			_, err := textBuilder.WriteRune(ch)
-			fmt.Println("Page E2")
 			if err != nil {
 				panic(err)
 			}
 		}
 	}
-	fmt.Println("Page F")
+	
 	Interpret(strm, func(stk *Stack, op string) {
-		fmt.Println("Page F1")
 		n := stk.Len()
 		args := make([]Value, n)
 		for i := n - 1; i >= 0; i-- {
 			args[i] = stk.Pop()
 		}
-		fmt.Println("Page F2")
-
+		
 		switch op {
 		default:
 			return
@@ -543,19 +530,15 @@ func (p Page) GetPlainText(fonts map[string]*Font) (result string, err error) {
 			showText(args[0].RawString())
 		case "TJ": // show text, allowing individual glyph positioning
 			v := args[0]
-			fmt.Println("Page F3", v.Len())
 			for i := 0; i < v.Len(); i++ {
-				fmt.Println("Page F4")
 				x := v.Index(i)
 				if x.Kind() == String {
-					fmt.Println("Page F5")
 					showText(x.RawString())
 				}
 			}
 		}
 	})
 
-	fmt.Println("Page Z")
 	return textBuilder.String(), nil
 }
 
