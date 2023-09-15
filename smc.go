@@ -15,7 +15,7 @@ import (
 	"github.com/pkg/errors"
 
 	"io"
-	"fmt"
+	//"fmt"
 )
 
   //-----------------------------------------------------------------------------------------------------------------------//
@@ -40,7 +40,7 @@ Read(p []byte) (n int, err error)
 Seek(offset int64, whence int) (int64, error)
 
 */
-func PlainText (f io.ReaderAt, size int64) (string, error) {
+func PlainText (f io.ReaderAt, size int64, unidocKey string) (string, error) {
 
 	// create a section reader so everyone is happy
 	sr := io.NewSectionReader (f, 0, size)
@@ -62,7 +62,7 @@ func PlainText (f io.ReaderAt, size int64) (string, error) {
 	// didn't work, so try another library
 	// https://cloud.unidoc.io/#/dashboard
 	// https://github.com/unidoc/unipdf
-	err = license.SetMeteredKey("56e8c9c543d4122cd0a0a85506ed169db74efdc84b1de961eebc8e60a0908463")
+	err = license.SetMeteredKey(unidocKey)
 	if err != nil { return "", errors.WithStack (err) }
 	
 	pdfReader, err := model.NewPdfReader(sr)
