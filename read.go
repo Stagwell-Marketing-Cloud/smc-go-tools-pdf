@@ -169,23 +169,30 @@ func NewReaderEncrypted(f io.ReaderAt, size int64, pw func() string) (*Reader, e
 	if trailer["Encrypt"] == nil {
 		return r, nil
 	}
+	
 	err = r.initEncrypt("")
+	return r, err 
+
+	/*
+	err = r.initEncrypt("")
+	fmt.Println("HERE", err)
 	if err == nil {
 		return r, nil
 	}
-	if pw == nil || err != ErrInvalidPassword {
-		return nil, err
+	*/
+	/*
+	if pw == nil || err != nil { // || err != ErrInvalidPassword {
+		return r, err
 	}
-	for {
-		next := pw()
-		if next == "" {
-			break
-		}
-		if r.initEncrypt(next) == nil {
-			return r, nil
-		}
-	}
-	return nil, err
+
+	fmt.Println("HEREA")
+	next := pw()
+	
+	fmt.Println("HEREB")
+	r.initEncrypt(next)
+	fmt.Println("HEREC")
+	return r, nil
+	*/
 }
 
 // Trailer returns the file's Trailer value.
@@ -975,7 +982,7 @@ func (r *Reader) initEncrypt(password string) error {
 	h.Write([]byte{byte(P), byte(P >> 8), byte(P >> 16), byte(P >> 24)})
 	h.Write([]byte(ID))
 	key := h.Sum(nil)
-
+	
 	if R >= 3 {
 		for i := 0; i < 50; i++ {
 			h.Reset()
