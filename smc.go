@@ -62,9 +62,6 @@ func PlainText (f io.ReaderAt, size int64, unidocKey string) (string, error) {
 	// didn't work, so try another library
 	// https://cloud.unidoc.io/#/dashboard
 	// https://github.com/unidoc/unipdf
-	err = license.SetMeteredKey(unidocKey)
-	if err != nil { return "", errors.WithStack (err) }
-	
 	pdfReader, err := model.NewPdfReader(sr)
 	if err != nil { return "", errors.WithStack (err) }
 	
@@ -92,4 +89,13 @@ func PlainText (f io.ReaderAt, size int64, unidocKey string) (string, error) {
 	}
 
 	return ret, nil // we're good
+}
+
+// i guess you can't keep firing this, do it once at startup
+func InitUniDoc (key string) error {
+	// didn't work, so try another library
+	// https://cloud.unidoc.io/#/dashboard
+	// https://github.com/unidoc/unipdf
+	err = license.SetMeteredKey(unidocKey)
+	return errors.WithStack (err)
 }
