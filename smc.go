@@ -96,6 +96,6 @@ func InitUniDoc (key string) error {
 	// didn't work, so try another library
 	// https://cloud.unidoc.io/#/dashboard
 	// https://github.com/unidoc/unipdf
-	err = license.SetMeteredKey(unidocKey)
+	err := license.SetMeteredKey(unidocKey)
 	return errors.WithStack (err)
 }
