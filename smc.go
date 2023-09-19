@@ -60,6 +60,9 @@ func PlainText (f io.ReaderAt, size int64, unidocKey string) (string, error) {
 	}
 	
 	// didn't work, so try another library
+	// not doing this right now
+	if true { return "", nil } // just pretend it didn't work
+	
 	// https://cloud.unidoc.io/#/dashboard
 	// https://github.com/unidoc/unipdf
 	pdfReader, err := model.NewPdfReader(sr)
