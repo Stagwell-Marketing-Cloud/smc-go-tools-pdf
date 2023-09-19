@@ -1,8 +1,11 @@
 package pdf
 
 import (
+	"github.com/stretchr/testify/assert"
+
 	"fmt"
 	"testing"
+	"context"
 	"os"
 )
 
@@ -16,10 +19,12 @@ func TestMoneySMC1 (t *testing.T) {
 	sz, err := f.Stat()
 	if err != nil { t.Fatal(err) }
 	
-	str, err := PlainText (f, sz.Size())
+	str, err := PlainText (context.Background(), f, sz.Size())
 	if err != nil { t.Fatal(err) }
 
-	fmt.Println(len(str), str)
+	assert.Equal (t, 221289, len(str))
+
+	fmt.Println(len(str), str[:100])
 }
 
 func TestMoneySMC2 (t *testing.T) {
@@ -31,10 +36,12 @@ func TestMoneySMC2 (t *testing.T) {
 	sz, err := f.Stat()
 	if err != nil { t.Fatal(err) }
 	
-	str, err := PlainText (f, sz.Size())
+	str, err := PlainText (context.Background(), f, sz.Size())
 	if err != nil { t.Fatal(err) }
 
-	fmt.Println(len(str), str)
+	assert.Equal (t, 65604, len(str))
+
+	fmt.Println(len(str), str[:100])
 }
 
 func TestMoneySMC3 (t *testing.T) {
@@ -46,7 +53,7 @@ func TestMoneySMC3 (t *testing.T) {
 	sz, err := f.Stat()
 	if err != nil { t.Fatal(err) }
 	
-	str, err := PlainText (f, sz.Size())
+	str, err := PlainText (context.Background(), f, sz.Size())
 	if err != nil { t.Fatal(err) }
 
 	fmt.Println(len(str), str)
