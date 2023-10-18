@@ -58,3 +58,33 @@ func TestMoneySMC3 (t *testing.T) {
 
 	fmt.Println(len(str), str)
 }
+
+func TestMoneySMC4 (t *testing.T) {
+	f, err := os.Open("testing/10840.pdf")
+	if err != nil {
+		t.Error("Doc should not be nil', got ", err)
+	}
+
+	sz, err := f.Stat()
+	if err != nil { t.Fatal(err) }
+	
+	str, err := PlainText (context.Background(), f, sz.Size())
+	if err != nil { t.Fatal(err) }
+
+	fmt.Println(len(str), str[:100])
+}
+
+func TestMoneySMC5 (t *testing.T) {
+	f, err := os.Open("testing/crash.pdf")
+	if err != nil {
+		t.Error("Doc should not be nil', got ", err)
+	}
+
+	sz, err := f.Stat()
+	if err != nil { t.Fatal(err) }
+	
+	str, err := PlainText (context.Background(), f, sz.Size())
+	if err != nil { t.Fatal(err) }
+
+	fmt.Println(len(str), str[:100])
+}

@@ -47,7 +47,15 @@ Read(p []byte) (n int, err error)
 Seek(offset int64, whence int) (int64, error)
 
 */
-func PlainText (ctx context.Context, f io.ReaderAt, size int64) (string, error) {
+func PlainText (ctx context.Context, f io.ReaderAt, size int64) (out string, err error) {
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("PDF PANIC RECOVERED")
+			// we recovered from a crash, so try the other way
+			out, err = PlainTextFromPipe (ctx, f, size) // update the return values with this value created from our pipeing
+		}
+	}()
 
 	// create a section reader so everyone is happy
 	sr := io.NewSectionReader (f, 0, size)
@@ -67,13 +75,17 @@ func PlainText (ctx context.Context, f io.ReaderAt, size int64) (string, error) 
 	}
 	
 	// didn't work, so try another library
-	if ctx.Err() != nil { return "", errors.WithStack(ctx.Err()) }
+	return PlainTextFromPipe (ctx, f, size)
+}
+
+func PlainTextFromPipe (ctx context.Context, f io.ReaderAt, size int64) (string, error) {
+	if ctx.Err() != nil { return "", errors.WithStack(ctx.Err()) } // out of time
 
 	// create a local file
 	flName := fmt.Sprintf("pdf%d.pdf", time.Now().Unix())
 
 	data := make([]byte, size)
-	_, err = f.ReadAt (data, 0)
+	_, err := f.ReadAt (data, 0)
 	if err != nil { return "", errors.WithStack (err) }
 
 	// fmt.Println("read", cnt, size)
@@ -93,46 +105,4 @@ func PlainText (ctx context.Context, f io.ReaderAt, size int64) (string, error) 
 
 	return strings.TrimSpace (string(output)), nil // we're good
 
-	/*
-	
-	// https://cloud.unidoc.io/#/dashboard
-	// https://github.com/unidoc/unipdf
-	pdfReader, err := model.NewPdfReader(sr)
-	if err != nil { return "", errors.WithStack (err) }
-	
-	isEncrypted, err := pdfReader.IsEncrypted()
-	if err == nil && isEncrypted {
-		_, err = pdfReader.Decrypt(nil)
-		if err != nil { return "", errors.WithStack (err) }
-	}
-
-	numPages, err := pdfReader.GetNumPages()
-	if err != nil { return "", errors.WithStack (err) }
-	
-	ret := ""
-	for i := 0; i < numPages; i++ {
-		page, err := pdfReader.GetPage(i + 1)
-		if err != nil { return "", errors.WithStack (err) }
-		
-		ex, err := extractor.New(page)
-		if err != nil { return "", errors.WithStack (err) }
-		
-		text, err := ex.ExtractText()
-		if err != nil { return "", errors.WithStack (err) }
-		
-		ret = ret + " " + text
-	}
-
-	return ret, nil // we're good
-	*/
-}
-
-// i guess you can't keep firing this, do it once at startup
-func InitUniDoc (key string) error {
-	// didn't work, so try another library
-	// https://cloud.unidoc.io/#/dashboard
-	// https://github.com/unidoc/unipdf
-	// err := license.SetMeteredKey(key)
-	// return errors.WithStack (err)
-	return nil 
 }
