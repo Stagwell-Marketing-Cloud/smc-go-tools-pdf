@@ -83,7 +83,7 @@ func PlainTextFromPipe (ctx context.Context, f io.ReaderAt, size int64) (string,
 
 	// create a local file
 	flName := fmt.Sprintf("pdf%d.pdf", time.Now().Unix())
-
+	
 	data := make([]byte, size)
 	_, err := f.ReadAt (data, 0)
 	if err != nil { return "", errors.WithStack (err) }
@@ -92,15 +92,15 @@ func PlainTextFromPipe (ctx context.Context, f io.ReaderAt, size int64) (string,
 
 	err = os.WriteFile (flName, data, 0666)
 	if err != nil { return "", errors.WithStack (err) }
-
+	
 	output, err := exec.CommandContext (ctx, "lesspipe", flName).CombinedOutput()
 
 	// remove our file
 	os.Remove(flName)
-
+	
 	if err != nil { return "", errors.WithStack (err) }
 
-	// fmt.Println ("worked", len(output))
+	// fmt.Println ("worked", len(output), string(output))
 	// fmt.Println(string(output[:100]))
 
 	return strings.TrimSpace (string(output)), nil // we're good

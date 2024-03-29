@@ -88,3 +88,34 @@ func TestMoneySMC5 (t *testing.T) {
 
 	fmt.Println(len(str), str[:100])
 }
+
+func TestMoneySMC5a (t *testing.T) {
+	f, err := os.Open("testing/twilio.pdf")
+	if err != nil {
+		t.Error("Doc should not be nil', got ", err)
+	}
+
+	sz, err := f.Stat()
+	if err != nil { t.Fatal(err) }
+	
+	str, err := PlainText (context.Background(), f, sz.Size())
+	if err != nil { t.Fatal(err) }
+
+	fmt.Println(len(str), str[:100])
+}
+
+// this file gets stuck in a loop
+func TestMoneySMC6a (t *testing.T) {
+	f, err := os.Open("testing/ACXIOM_CX_Predictions_2024.pdf")
+	if err != nil {
+		t.Error("Doc should not be nil', got ", err)
+	}
+
+	sz, err := f.Stat()
+	if err != nil { t.Fatal(err) }
+	
+	str, err := PlainText (context.Background(), f, sz.Size())
+	if err != nil { t.Fatal(err) }
+
+	fmt.Println(len(str)) //, str[:100])
+}

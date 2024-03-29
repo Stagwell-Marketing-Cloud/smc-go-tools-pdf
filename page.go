@@ -25,12 +25,15 @@ type Page struct {
 func (r *Reader) Page(num int) Page {
 	num-- // now 0-indexed
 	page := r.Trailer().Key("Root").Key("Pages")
+	stuck := 0
+
 Search:
 	for page.Key("Type").Name() == "Pages" {
 		count := int(page.Key("Count").Int64())
 		if count < num {
 			return Page{}
 		}
+		
 		kids := page.Key("Kids")
 		for i := 0; i < kids.Len(); i++ {
 			kid := kids.Index(i)
@@ -40,6 +43,7 @@ Search:
 					page = kid
 					continue Search
 				}
+				
 				num -= c
 				continue
 			}
@@ -49,6 +53,12 @@ Search:
 				}
 				num--
 			}
+		}
+
+		stuck++
+		if stuck > 4 { 
+			// fmt.Println("Page Reader got stuck!!!")
+			break // we're stuck
 		}
 	}
 	return Page{}
@@ -67,6 +77,7 @@ func (r *Reader) GetPlainText() (reader io.Reader, err error) {
 	
 	for i := 1; i <= pages; i++ {
 		p := r.Page(i)
+		
 		for _, name := range p.Fonts() { // cache fonts so we don't continually parse charmap
 			if _, ok := fonts[name]; !ok {
 				f := p.Font(name)
@@ -75,10 +86,12 @@ func (r *Reader) GetPlainText() (reader io.Reader, err error) {
 		}
 		
 		text, err := p.GetPlainText(fonts)
+		
 		if err != nil {
 			return &bytes.Buffer{}, err
 		}
 		buf.WriteString(text)
+		
 	}
 	return &buf, nil
 }
